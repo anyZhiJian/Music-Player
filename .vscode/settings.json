@@ -1,0 +1,28 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.portWin": "COM23",
+  "idf.flashType": "UART",
+  "idf.openOcdConfigs": [
+    "board/esp32s3-builtin.cfg"
+  ],
+  "files.associations": {
+    "font_song_typeface.h": "c",
+    "exi2s.h": "c",
+    "i2s.h": "c",
+    "i2s_tdm.h": "c",
+    "exsdmmc.h": "c",
+    "i2s_std.h": "c",
+    "i2s_pdm.h": "c",
+    "i2s_common.h": "c",
+    "compare": "c",
+    "cstdint": "c",
+    "algorithm": "c",
+    "stdio.h": "c",
+    "bit": "c",
+    "exlib.h": "c"
+  },
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32s3"
+  },
+  
+}
