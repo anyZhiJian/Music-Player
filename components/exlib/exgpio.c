@@ -2,14 +2,14 @@
 
 void exgpio_init(uint64_t pin_mask, gpio_mode_t mode, gpio_pullup_t pullup, gpio_pulldown_t pulldown, gpio_int_type_t int_type)
 {
-    gpio_config_t config = {
+    gpio_config_t cfg = {
         .intr_type = int_type,
         .mode = mode,
         .pin_bit_mask = pin_mask,
         .pull_down_en = pulldown,
         .pull_up_en = pullup,
     };
-    ESP_ERROR_CHECK(gpio_config(&config));
+    ESP_ERROR_CHECK(gpio_config(&cfg));
 }
 
 void exgpio_toggle(gpio_num_t pin)

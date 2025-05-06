@@ -4,8 +4,12 @@
 #include "nvs_flash.h"
 #include "esp_mac.h"
 #include "esp_log.h"
+#include "lwip/lwip_napt.h"
 
 const static char* TAG = "wifi";
+
+static esp_netif_t *netif_ap;
+static esp_netif_t *netif_sta;
 
 static void exwifi_nvs_init(void);
 static void exwifi_lwip_init(exwifi_mode_t mode);
@@ -126,14 +130,10 @@ static void exwifi_lwip_init(exwifi_mode_t mode)
     switch (mode)
     {
     case exwifi_mode_ap:
-        esp_netif_create_default_wifi_ap();
+        netif_ap = esp_netif_create_default_wifi_ap();
         break;
     case exwifi_mode_sta:
-        esp_netif_create_default_wifi_sta();
-        break;
-    case exwifi_mode_ap_sta:
-        esp_netif_create_default_wifi_ap();
-        esp_netif_create_default_wifi_sta();
+        netif_sta = esp_netif_create_default_wifi_sta();
         break;
     }
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -148,11 +148,6 @@ static void exwifi_register_event_handler(exwifi_mode_t mode)
         ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &exwifi_ap_handler, NULL, NULL));
         break;
     case exwifi_mode_sta:
-        ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &exwifi_sta_handler, NULL, NULL));
-        ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &exwifi_sta_handler, NULL, NULL));
-        break;
-    case exwifi_mode_ap_sta:
-        ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &exwifi_ap_handler, NULL, NULL));
         ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &exwifi_sta_handler, NULL, NULL));
         ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &exwifi_sta_handler, NULL, NULL));
         break;
@@ -203,10 +198,30 @@ static void exwifi_mode_config(const char *ssid, const char *password, exwifi_mo
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         exwifi_sta_config(ssid, password);
         break;
-    case exwifi_mode_ap_sta:
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-        exwifi_ap_config(ssid, password);
-        exwifi_sta_config(ssid, password);
-        break;
     }
+}
+
+void exwifi_init_apsta_mode(const char *sta_ssid, const char *sta_password, const char *ap_ssid, const char *ap_password)
+{
+    exwifi_nvs_init();
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    netif_ap = esp_netif_create_default_wifi_ap();
+    netif_sta = esp_netif_create_default_wifi_sta();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &exwifi_ap_handler, NULL, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &exwifi_sta_handler, NULL, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &exwifi_sta_handler, NULL, NULL));
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+    exwifi_ap_config(ap_ssid, ap_password);
+    exwifi_sta_config(sta_ssid, sta_password);
+    ESP_ERROR_CHECK(esp_wifi_start());
+}
+
+void exwifi_napt(void)
+{
+    ESP_ERROR_CHECK(esp_netif_set_default_netif(netif_sta));
+    if(esp_netif_napt_enable(netif_ap) != ESP_OK)
+        ESP_LOGE(TAG, "napt was disabled");
 }

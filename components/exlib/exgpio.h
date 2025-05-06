@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define EXGPIO_PIN_TO_MASK(pin) (1ULL<<pin)
+#define EXGPIO_PIN_MASK(pin) (1ULL<<pin)
 
 typedef enum
 {

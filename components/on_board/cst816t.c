@@ -10,8 +10,8 @@ cst816t_handle_t cst816t_init(i2c_port_num_t i2c_num, gpio_num_t scl, gpio_num_t
 {
     cst816t_t* cst816t = malloc(sizeof(cst816t_t));
     assert(cst816t);
-    cst816t->i2c = exi2c_init(i2c_num, scl, sda);
-    cst816t->dev = exi2c_add_device(cst816t->i2c, CST816T_ADDR, 400000);
+    cst816t->i2c = exi2c_master_init(i2c_num, scl, sda);
+    cst816t->dev = exi2c_master_add_device(cst816t->i2c, CST816T_ADDR, 400000);
     cst816t->limit_x = limit_x;
     cst816t->limit_y = limit_y;
     return cst816t;

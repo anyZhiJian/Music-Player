@@ -1,20 +1,21 @@
 #include "exledc.h"
+#include <math.h>
 
 void exledc_timer_init(ledc_timer_t timer, uint32_t freq_hz)
 {
-    ledc_timer_config_t ledc_timer = {
+    ledc_timer_config_t ledc_tim_cfg = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
-        .duty_resolution  = LEDC_TIMER_10_BIT,
+        .duty_resolution  = EXLEDC_DUTY_RES,
         .timer_num        = timer,
         .freq_hz          = freq_hz,
         .clk_cfg          = LEDC_AUTO_CLK
     };
-    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_tim_cfg));
 }
 
 void exledc_channel_config(ledc_timer_t timer, ledc_channel_t channel, int gpio_num)
 {
-    ledc_channel_config_t ledc_channel = {
+    ledc_channel_config_t ledc_chan_cfg = {
         .speed_mode     = LEDC_LOW_SPEED_MODE,
         .channel        = channel,
         .timer_sel      = timer,
@@ -23,12 +24,23 @@ void exledc_channel_config(ledc_timer_t timer, ledc_channel_t channel, int gpio_
         .duty           = 0,
         .hpoint         = 0
     };
-    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_chan_cfg));
 }
 
-void exledc_set_duty(ledc_channel_t channel, uint32_t duty)
+void exledc_set_raw_duty(ledc_channel_t channel, uint32_t duty)
 {
-    ESP_ERROR_CHECK(ledc_set_duty_and_update(LEDC_LOW_SPEED_MODE, channel, duty, 0));
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
+}
+
+void exledc_set_duty(ledc_channel_t channel, float duty)
+{
+    if(duty < 0)
+    duty = 0;
+    if(duty > 100)
+    duty = 100;
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty / 100 * pow(2, EXLEDC_DUTY_RES)));
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, channel));
 }
 
 void exledc_fade_func_install(void)

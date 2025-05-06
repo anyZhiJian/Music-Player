@@ -4,12 +4,12 @@
 
 pcnt_unit_handle_t expcnt_init(int high_limit, int low_limit)
 {
-    pcnt_unit_config_t unit_config = {
+    pcnt_unit_config_t unit_cfg = {
         .high_limit = high_limit,
         .low_limit = low_limit,
     };
     pcnt_unit_handle_t pcnt_unit = NULL;
-    ESP_ERROR_CHECK(pcnt_new_unit(&unit_config, &pcnt_unit));
+    ESP_ERROR_CHECK(pcnt_new_unit(&unit_cfg, &pcnt_unit));
     pcnt_glitch_filter_config_t filter_config = {
         .max_glitch_ns = GLITCH_NS,
     };
@@ -17,9 +17,6 @@ pcnt_unit_handle_t expcnt_init(int high_limit, int low_limit)
     return pcnt_unit;
 }
 
-/**
-  * @note before calling this function, we should disable the pcnt unit and delete all channel.
-  */
 void expcnt_deinit(pcnt_unit_handle_t pcnt_unit)
 {
     ESP_ERROR_CHECK(pcnt_del_unit(pcnt_unit));
@@ -27,12 +24,12 @@ void expcnt_deinit(pcnt_unit_handle_t pcnt_unit)
 
 void expcnt_channel_config(pcnt_unit_handle_t pcnt_unit, int edge_gpio_num, int level_gpio_num, expcnt_edge_config_t edge_config, expcnt_level_config_t level_config)
 {
-    pcnt_chan_config_t chan_config = {
+    pcnt_chan_config_t chan_cfg = {
         .edge_gpio_num = edge_gpio_num,
         .level_gpio_num = level_gpio_num,
     };
     pcnt_channel_handle_t pcnt_chan = NULL;
-    ESP_ERROR_CHECK(pcnt_new_channel(pcnt_unit, &chan_config, &pcnt_chan));
+    ESP_ERROR_CHECK(pcnt_new_channel(pcnt_unit, &chan_cfg, &pcnt_chan));
     if(edge_gpio_num != -1)
     {
         pcnt_channel_edge_action_t p_action = 0, n_action = 0;
@@ -108,11 +105,11 @@ pcnt_unit_handle_t expcnt_encoder_init(int encoder_pin_1, int encoder_pin_2)
     return pcnt;
 }
 
-int expcnt_get_encoder_state(pcnt_unit_handle_t pcnt, int* cnt)
+int expcnt_get_encoder_state(pcnt_unit_handle_t pcnt, int* cnt, int scale)
 {
     int temp = *cnt;
     ESP_ERROR_CHECK(pcnt_unit_get_count(pcnt, cnt));
-    *cnt /= 4;
+    *cnt /= 4 * scale;
     if(temp > *cnt)
         return -1;
     else if(temp < *cnt)

@@ -24,10 +24,9 @@ void lcd_read_cb(struct _lv_indev_drv_t* driver, lv_indev_data_t* data);
 void lcd_init(void)
 {
     exspi_init(SPI2_HOST, SCLK, MOSI, MISO, HOR_RES * 120 * 2);
-    exspi_add_device(SPI2_HOST, &lcd_spi, SPI_SPEED * 1000 * 1000, CS, lcd_pre_cb, NULL);
-
+    lcd_spi = exspi_add_device(SPI2_HOST, SPI_SPEED * 1000 * 1000, CS, lcd_pre_cb, NULL);
     lcd_gptimer = exgptimer_init(100000, 0, 1000, true);
-    exgptimer_set_cbs(lcd_gptimer, lcd_timer_cb, NULL);
+    exgptimer_register_cbs(lcd_gptimer, lcd_timer_cb, NULL);
     exgptimer_enable_and_start(lcd_gptimer);
 
     lcd_gpio_init();
@@ -73,9 +72,9 @@ void lcd_init(void)
 
 void lcd_gpio_init(void)
 {
-    exgpio_init(EXGPIO_PIN_TO_MASK(DC), GPIO_MODE_OUTPUT, 1, 0, 0);
-    exgpio_init(EXGPIO_PIN_TO_MASK(RES), GPIO_MODE_OUTPUT, 1, 0, 0);
-    exgpio_init(EXGPIO_PIN_TO_MASK(BLK), GPIO_MODE_OUTPUT, 1, 0, 0);
+    exgpio_init(EXGPIO_PIN_MASK(DC), GPIO_MODE_OUTPUT, 1, 0, 0);
+    exgpio_init(EXGPIO_PIN_MASK(RES), GPIO_MODE_OUTPUT, 1, 0, 0);
+    exgpio_init(EXGPIO_PIN_MASK(BLK), GPIO_MODE_OUTPUT, 1, 0, 0);
 }
 
 void lcd_set_region(spi_device_handle_t spi, int x1, int y1, int x2, int y2)

@@ -3,7 +3,7 @@
 rmt_channel_handle_t exrmt_tx_channel_init(uint32_t resolution_hz, gpio_num_t gpio_num)
 {
     rmt_channel_handle_t tx_chan = NULL;
-    rmt_tx_channel_config_t tx_chan_config = {
+    rmt_tx_channel_config_t tx_chan_cfg = {
         .clk_src = RMT_CLK_SRC_DEFAULT,
         .gpio_num = gpio_num,
         .mem_block_symbols = 64,
@@ -12,7 +12,7 @@ rmt_channel_handle_t exrmt_tx_channel_init(uint32_t resolution_hz, gpio_num_t gp
         .flags.invert_out = false,
         .flags.with_dma = false,
     };
-    ESP_ERROR_CHECK(rmt_new_tx_channel(&tx_chan_config, &tx_chan));
+    ESP_ERROR_CHECK(rmt_new_tx_channel(&tx_chan_cfg, &tx_chan));
     return tx_chan;
 }
 
@@ -26,7 +26,7 @@ rmt_channel_handle_t exrmt_tx_channel_init(uint32_t resolution_hz, gpio_num_t gp
 rmt_channel_handle_t exrmt_rx_channel_init(uint32_t resolution_hz, gpio_num_t gpio_num)
 {
     rmt_channel_handle_t rx_chan = NULL;
-    rmt_rx_channel_config_t rx_chan_config = {
+    rmt_rx_channel_config_t rx_chan_cfg = {
         .clk_src = RMT_CLK_SRC_DEFAULT, 
         .resolution_hz = resolution_hz,
         .mem_block_symbols = 64,
@@ -34,7 +34,7 @@ rmt_channel_handle_t exrmt_rx_channel_init(uint32_t resolution_hz, gpio_num_t gp
         .flags.invert_in = false,
         .flags.with_dma = false,
     };
-    ESP_ERROR_CHECK(rmt_new_rx_channel(&rx_chan_config, &rx_chan));
+    ESP_ERROR_CHECK(rmt_new_rx_channel(&rx_chan_cfg, &rx_chan));
     return rx_chan;
 }
 

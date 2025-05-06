@@ -15,9 +15,7 @@ static void lv_disp_init(lv_port_t* lv_port, lv_coord_t hor_res, lv_coord_t ver_
     lv_color_t* buf1 = heap_caps_malloc(buf_size * sizeof(lv_color_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
     lv_color_t* buf2 = heap_caps_malloc(buf_size * sizeof(lv_color_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
     if(!buf1 || !buf2)
-    {
         return;
-    }
     lv_disp_draw_buf_init(&lv_port->draw_buf, buf1, buf2, buf_size);
     lv_disp_drv_init(&lv_port->disp_driver);
     lv_port->disp_driver.hor_res = hor_res;

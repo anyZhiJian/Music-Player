@@ -52,7 +52,7 @@ void expcnt_enable_and_start(pcnt_unit_handle_t pcnt_unit);
 void expcnt_add_watch_point(pcnt_unit_handle_t pcnt_unit, int* watch_points, uint32_t num);
 void expcnt_register_cbs(pcnt_unit_handle_t pcnt_unit, pcnt_watch_cb_t watch_cb, void* user_data);
 pcnt_unit_handle_t expcnt_encoder_init(int encoder_pin_1, int encoder_pin_2);
-int expcnt_get_encoder_state(pcnt_unit_handle_t pcnt, int* cnt);
+int expcnt_get_encoder_state(pcnt_unit_handle_t pcnt, int* cnt, int scale);
 
 #ifdef __cplusplus
 }

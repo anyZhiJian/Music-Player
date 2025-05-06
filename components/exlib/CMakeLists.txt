@@ -8,4 +8,5 @@ idf_component_register(SRCS ${SRC}
                     REQUIRES esp_wifi
                     REQUIRES nvs_flash
                     REQUIRES fatfs
+                    REQUIRES esp_timer
                     )
