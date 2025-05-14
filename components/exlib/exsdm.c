@@ -17,12 +17,14 @@ void exsdm_deinit(sdm_channel_handle_t channel)
     ESP_ERROR_CHECK(sdm_del_channel(channel));
 }
 
-void exsdm_enalbe(sdm_channel_handle_t channel, int enable)
+void exsdm_enable(sdm_channel_handle_t channel)
 {
-    if(enable)
-        ESP_ERROR_CHECK(sdm_channel_enable(channel));
-    else
-        ESP_ERROR_CHECK(sdm_channel_disable(channel));
+    ESP_ERROR_CHECK(sdm_channel_enable(channel));
+}
+
+void exsdm_disalbe(sdm_channel_handle_t channel)
+{
+    ESP_ERROR_CHECK(sdm_channel_disable(channel));
 }
 
 void exsdm_set_pulse_density(sdm_channel_handle_t sdm_chan, float vout_percent)

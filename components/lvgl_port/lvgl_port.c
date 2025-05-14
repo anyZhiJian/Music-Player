@@ -9,6 +9,8 @@
 // lv_disp_flush_ready();   需要在刷新准备好时调用
 // lv_tick_inc();
 
+static lv_indev_t *lv_dev;
+
 static void lv_disp_init(lv_port_t* lv_port, lv_coord_t hor_res, lv_coord_t ver_res, uint8_t page, lv_port_disp_flush_cb_t flush_cb)
 {
     int buf_size = hor_res * (ver_res / page);
@@ -30,7 +32,7 @@ static void lv_indev_init(lv_port_t* lv_port, lv_indev_type_t indev_type, lv_por
     lv_indev_drv_init(&lv_port->indev_driver);
     lv_port->indev_driver.type = indev_type;
     lv_port->indev_driver.read_cb = read_cb;
-    lv_indev_drv_register(&lv_port->indev_driver);
+    lv_dev = lv_indev_drv_register(&lv_port->indev_driver);
 }
 
 void lv_port_init(lv_port_t* lv_port, lv_coord_t hor_res, lv_coord_t ver_res, lv_indev_type_t indev_type, lv_port_disp_flush_cb_t flush_cb, lv_port_indev_read_cb_t read_cb, uint8_t page)
@@ -38,4 +40,9 @@ void lv_port_init(lv_port_t* lv_port, lv_coord_t hor_res, lv_coord_t ver_res, lv
     lv_init();
     lv_disp_init(lv_port, hor_res, ver_res, page, flush_cb);
     lv_indev_init(lv_port, indev_type, read_cb);
+}
+
+lv_indev_t * lv_port_get_dev(void)
+{
+    return lv_dev;
 }

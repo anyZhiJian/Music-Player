@@ -8,12 +8,14 @@ void extemperature_sensor_init(void)
     ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_cfg, &temperature_sensor));
 }
 
-void extemperature_sensor_enable(bool enable)
+void extemperature_sensor_enable(void)
 {
-    if(enable)
-        ESP_ERROR_CHECK(temperature_sensor_enable(temperature_sensor));
-    else
-        ESP_ERROR_CHECK(temperature_sensor_disable(temperature_sensor));
+    ESP_ERROR_CHECK(temperature_sensor_enable(temperature_sensor));
+}
+
+void extemperature_sensor_disable(void)
+{
+    ESP_ERROR_CHECK(temperature_sensor_disable(temperature_sensor));
 }
 
 float extemperature_sensor_read(void)

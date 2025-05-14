@@ -1,6 +1,8 @@
 #pragma once
 
 #include "exspi.h"
+#include "lvgl.h"
+#include "lvgl_port.h"
 
 #define TLCD    0
 #if !(TLCD)
@@ -39,6 +41,7 @@
 #define SPI_SPEED   60 // max surport speed:62.5MHz
 #define LCD_PAGE    2
 #define BLK_LEVEL   1
+#define LCD_INDEV_ENCODER
 #define LCD_ST7735
 #else
 #define SCL         6
@@ -51,7 +54,7 @@
 #define LCD_PAGE    7
 #define BLK_LEVEL   1
 #define ST7789_COLOR_INVERT
-#define LCD_INDEV
+#define LCD_INDEV_TOUCH
 #define LCD_ST7789
 #endif
 // #define LCD_ILI9341
@@ -59,10 +62,12 @@
 // #define LCD_ST7735
 #define LCD_LVGL
 // #define LCD_LVGL_DEMO_WIDGETS
-#define LCD_LVGL_DEMO_STRESS
+// #define LCD_LVGL_DEMO_STRESS
 // #define LCD_LVGL_DEMO_BENCHMARK
 // #define LCD_LVGL_DEMO_MUSIC
 
 extern spi_device_handle_t lcd_spi;
 
 void lcd_init(void);
+void lcd_set_encoder_cnt(int encoder_count);
+void lcd_set_encoder_key(int key_pressed);

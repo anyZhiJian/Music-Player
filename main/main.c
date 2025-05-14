@@ -2,8 +2,8 @@
 
 void app_main(void)
 {
-    exwifi_init_apsta_mode("testwifi", "testwifi", "music player", "esp32-s3");
-    exwifi_napt();
+    // exwifi_init_apsta_mode("testwifi", "testwifi", "music player", "esp32-s3");
+    // exwifi_napt();// BUG：开启网络后 SD card 可能挂载不上
     init();
     exgpio_init(EXGPIO_PIN_MASK(39), GPIO_MODE_OUTPUT, 0, 0, 0);
     exgpio_init(EXGPIO_PIN_MASK(40), GPIO_MODE_OUTPUT, 0, 0, 0);
@@ -19,7 +19,7 @@ void app_main(void)
     {
         if(exsd_card_sdspi_init(SPI2_HOST, 8) == ESP_OK)
             break;
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
     DIR *dir = opendir(MOUNT_POINT);
     if (dir == NULL)
@@ -104,8 +104,12 @@ void app_main(void)
                 data_size_read += bytes_read;
             }
             else
+            {
                 break;
+            }
+                
         }
+        memset(audio_buffer, 0, sizeof(audio_buffer));
         i2s_channel_disable(tx_chan);
         if (!mode)
         {

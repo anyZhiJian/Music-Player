@@ -29,20 +29,19 @@ esp_err_t exsd_card_sdmmc_init(gpio_num_t clk, gpio_num_t cmd, gpio_num_t d0, gp
 
 esp_err_t exsd_card_sdspi_init(spi_host_device_t host_id, int cs)
 {
-    esp_err_t ret;
+    esp_err_t ret = 0;
     esp_vfs_fat_sdmmc_mount_config_t mount_cfg = {
         .format_if_mount_failed = false,
         .max_files = 5,
-        .allocation_unit_size = 32 * 1024
-    };
-    sdmmc_card_t *card;
+        .allocation_unit_size = 32 * 1024};
+    sdmmc_card_t *card = NULL;
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
     host.slot = host_id;
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = cs;
     slot_config.host_id = host.slot;
-    ret = esp_vfs_fat_sdspi_mount(mount_point, &host, &slot_config, &mount_cfg, &card);
-    if(ret == ESP_OK)
+    ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_cfg, &card);
+    if (ret == ESP_OK)
         sdmmc_card_print_info(stdout, card);
     else
         ESP_ERROR_CHECK(sdspi_host_deinit());

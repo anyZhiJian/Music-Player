@@ -2,14 +2,15 @@
 #include "exgpio.h"
 #include "exgptimer.h"
 #include "cst816t.h"
-#include "lvgl.h"
-#include "lvgl_port.h"
 #include "lv_demos.h"
 
 spi_device_handle_t lcd_spi;
 cst816t_handle_t cst816t;
 static lv_port_t lcd_lv_port;
 static gptimer_handle_t lcd_gptimer;
+
+int lcd_encoder_pressed;
+int lcd_encoder_count;
 
 void lcd_gpio_init(void);
 void lcd_set_region(spi_device_handle_t spi, int x1, int y1, int x2, int y2);
@@ -19,7 +20,8 @@ void lcd_st7735_init(spi_device_handle_t spi);
 void lcd_pre_cb(spi_transaction_t *t);
 bool lcd_timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx);
 void lcd_flush_cb(struct _lv_disp_drv_t* driver, const lv_area_t* area, lv_color_t* data);
-void lcd_read_cb(struct _lv_indev_drv_t* driver, lv_indev_data_t* data);
+void lcd_read_cb_touch(struct _lv_indev_drv_t* driver, lv_indev_data_t* data);
+void lcd_read_cb_enocder(struct _lv_indev_drv_t* driver, lv_indev_data_t* data);
 
 void lcd_init(void)
 {
@@ -49,12 +51,15 @@ void lcd_init(void)
     gpio_set_level(BLK, BLK_LEVEL);
 
     lv_port_indev_read_cb_t read_cb = NULL;
-#ifdef LCD_INDEV
+#ifdef LCD_INDEV_TOUCH
     cst816t = cst816t_init(I2C_NUM_0, SCL, SDA, HOR_RES, VER_RES);
-    read_cb = lcd_read_cb;
+    read_cb = lcd_read_cb_touch;
+#endif
+#ifdef LCD_INDEV_ENCODER
+    read_cb = lcd_read_cb_enocder;
 #endif
 #ifdef LCD_LVGL
-    lv_port_init(&lcd_lv_port, HOR_RES, VER_RES, LV_INDEV_TYPE_POINTER, lcd_flush_cb, read_cb, LCD_PAGE);
+    lv_port_init(&lcd_lv_port, HOR_RES, VER_RES, LV_INDEV_TYPE_ENCODER, lcd_flush_cb, read_cb, LCD_PAGE);
 #ifdef LCD_LVGL_DEMO_WIDGETS
     lv_demo_widgets();
 #endif
@@ -400,7 +405,27 @@ void lcd_flush_cb(struct _lv_disp_drv_t* driver, const lv_area_t* area, lv_color
     lv_disp_flush_ready(&lcd_lv_port.disp_driver);
 }
 
-void IRAM_ATTR lcd_read_cb(struct _lv_indev_drv_t* driver, lv_indev_data_t* data)
+void IRAM_ATTR lcd_read_cb_touch(struct _lv_indev_drv_t* driver, lv_indev_data_t* data)
 {
     cst816t_read(cst816t, &data->point.x, &data->point.y, (int*)&data->state);
+}
+#include "esp_log.h"
+void IRAM_ATTR lcd_read_cb_enocder(struct _lv_indev_drv_t* driver, lv_indev_data_t* data)
+{
+    static int last = 0;
+    if(lcd_encoder_pressed) data->state = LV_INDEV_STATE_PRESSED;
+    else data->state = LV_INDEV_STATE_RELEASED;
+    data->enc_diff = last - lcd_encoder_count;
+
+    last = lcd_encoder_count;
+}
+
+void lcd_set_encoder_cnt(int encoder_count)
+{
+    lcd_encoder_count = encoder_count;
+}
+
+void lcd_set_encoder_key(int key_pressed)
+{
+    lcd_encoder_pressed = key_pressed;
 }
